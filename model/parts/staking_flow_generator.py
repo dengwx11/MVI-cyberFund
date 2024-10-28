@@ -4,7 +4,7 @@ from scipy.stats import poisson, norm
 from sklearn.linear_model import LinearRegression
 
 # Define the staking flow generator
-past_days = 300
+past_days = 30
 n_samples = 150
 
 ## loading datasets
@@ -73,9 +73,9 @@ def simulate_based_on_day(data, n_samples):
     return model.predict(future_days)
 
 simulated_data = {
-    'CEX': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'CEXs'),
-    'LST': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Liquid Staking'),
-    'LRT': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Liquid Restaking'),
-    'Solo': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Solo Stakers'),
-    'StakingPool': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Staking Pools'),
+    'CEXAgent': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'CEXs'),
+    'LSTAgent': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Liquid Staking'),
+    'LRTAgent': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Liquid Restaking'),
+    'SoloAgent': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Solo Stakers'),
+    'StakingPoolAgent': simulate_data(staking_flow, n_samples, past_days, 'entity_category', 'Staking Pools'),
 } 

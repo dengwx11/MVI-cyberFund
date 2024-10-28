@@ -1,7 +1,7 @@
 """
 Misc. utility and helper functions
 """
-
+import numpy as np
 import copy
 from dataclasses import field
 from functools import partial
@@ -43,3 +43,9 @@ def local_variables(_locals):
 
 def default(obj):
     return field(default_factory=lambda: copy.copy(obj))
+
+def sigmoid_logistic_func(x, alpha = 1, theta = 0):
+    """
+    Logistic function with parameters L, k, x0, b
+    """
+    return 1 / (1 + np.exp(-alpha * (x - theta))) 

@@ -1,3 +1,4 @@
+from math import sqrt
 import numpy as np
 import pandas as pd
 
@@ -68,3 +69,61 @@ def update_total_validator_cnt(params, step, h, s, _input):
 
 def update_decentralization_metrics(params, step, h, s, _input):
     return ("decentralization_metrics",_input["decentralization_metrics"]) 
+
+
+def calc_issuance_APR(params, step, h, s):
+
+    total_validator_cnt = s["total_validator_cnt"]
+
+
+    # Calculate the issuance rate based on the total staked amount
+    issuance_APR = 29.4021 / sqrt(total_validator_cnt)
+
+    return ({
+        "issuance_APR": issuance_APR
+    })
+
+def update_issuance_APR(params, step, h, s, _input):
+    return ("issuance_APR",_input["issuance_APR"])
+
+def calc_revenue_APY(params, step, h, s):
+
+    issuance_APR = s["issuance_APR"]
+    total_validator_cnt = s["total_validator_cnt"]
+
+
+    CEXAgent = s["CEXAgent"]
+    LSTAgent = s["LSTAgent"]
+    LRTAgent = s["LRTAgent"]
+    SoloAgent = s["SoloAgent"]
+    StakingPoolAgent = s["StakingPoolAgent"]
+
+    agents_cnt = {
+        'CEXAgent': CEXAgent.cnt,
+        'LSTAgent': LSTAgent.cnt,
+        'LRTAgent': LRTAgent.cnt,
+        'SoloAgent': SoloAgent.cnt,
+        'StakingPoolAgent': StakingPoolAgent.cnt
+    }
+
+    revenue_APY_at_agent = {
+        'CEXAgent': issuance_APR - CEXAgent.cost_APY,
+        'LSTAgent': issuance_APR - LSTAgent.cost_APY,
+        'LRTAgent': issuance_APR - LRTAgent.cost_APY,
+        'SoloAgent': issuance_APR - SoloAgent.cost_APY,
+        'StakingPoolAgent': issuance_APR - StakingPoolAgent.cost_APY
+    }
+
+    # Calculate the revenue APY based on the total staked amount and issuance APR
+    revenue_APY = sum([revenue_APY_at_agent[agent] * agent_cnt/total_validator_cnt for agent, agent_cnt in agents_cnt.items()])
+
+    return ({
+        "revenue_APY": revenue_APY,
+        "revenue_APY_at_agent": revenue_APY_at_agent,
+    })
+
+def update_revenue_APY(params, step, h, s, _input):
+    return ("revenue_APY",_input["revenue_APY"])
+
+def update_revenue_APY_at_agent(params, step, h, s, _input):
+    return ("revenue_APY_at_agent",_input["revenue_APY_at_agent"])
