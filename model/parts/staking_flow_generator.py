@@ -3,9 +3,11 @@ import pandas as pd
 from scipy.stats import poisson, norm
 from sklearn.linear_model import LinearRegression
 
+from config import *
+
 # Define the staking flow generator
 past_days = 30
-n_samples = 150
+n_samples = TIMESTEPS
 
 ## loading datasets
 staking_flow =  pd.read_csv('model/data/staking_flow.csv')
