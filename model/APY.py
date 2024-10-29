@@ -98,6 +98,10 @@ def calc_revenue_APY(params, step, h, s):
     SoloAgent = s["SoloAgent"]
     StakingPoolAgent = s["StakingPoolAgent"]
 
+    revenue_baseline_reduction = params["revenue_baseline_reduction"]
+    mev_and_priority_add = params["mev_and_priority_add"]
+    total_adjustment_factor = revenue_baseline_reduction + mev_and_priority_add
+
     agents_cnt = {
         'CEXAgent': CEXAgent.cnt,
         'LSTAgent': LSTAgent.cnt,
@@ -106,16 +110,31 @@ def calc_revenue_APY(params, step, h, s):
         'StakingPoolAgent': StakingPoolAgent.cnt
     }
 
-    revenue_APY_at_agent = {
-        'CEXAgent': issuance_APR - CEXAgent.cost_APY,
-        'LSTAgent': issuance_APR - LSTAgent.cost_APY,
-        'LRTAgent': issuance_APR - LRTAgent.cost_APY,
-        'SoloAgent': issuance_APR - SoloAgent.cost_APY,
-        'StakingPoolAgent': issuance_APR - StakingPoolAgent.cost_APY
-    }
+    market_share_pct = {}
+    for agent, cnt in agents_cnt.items():
+        market_share_pct[agent] = cnt / total_validator_cnt
 
-    # Calculate the revenue APY based on the total staked amount and issuance APR
-    revenue_APY = sum([revenue_APY_at_agent[agent] * agent_cnt/total_validator_cnt for agent, agent_cnt in agents_cnt.items()])
+    issuance_APR_baseline = issuance_APR - revenue_baseline_reduction # 0.5% reduction in issuance APR to reweight the issuance allocation
+    beta = params.get('revenue_adjustment_beta', 1)
+
+    issuance_APY_at_agent = {}
+    for agent in agents_cnt.keys():
+        issuance_APY_at_agent[agent] = issuance_APR_baseline + total_adjustment_factor * (market_share_pct[agent] ** beta)
+
+    # Adjusted by comission fee
+
+    revenue_APY_at_agent = {}
+    for agent in agents_cnt.keys():
+        agent_obj = s[agent]
+        revenue_APY_at_agent[agent] = issuance_APY_at_agent[agent] - agent_obj.cost_APY
+
+    # Adjusted by comission fee
+    revenue_APY_at_agent['CEXAgent'] *= 0.75
+    revenue_APY_at_agent['LSTAgent'] *= 0.9
+    revenue_APY_at_agent['LRTAgent'] *= 0.9
+
+    revenue_APY = sum([revenue_APY_at_agent[agent] * agents_cnt[agent] / total_validator_cnt for agent in agents_cnt])
+
 
     return ({
         "revenue_APY": revenue_APY,

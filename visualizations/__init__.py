@@ -1,5 +1,6 @@
 import itertools
 import plotly.graph_objects as go
+import pandas as pd
 
 from visualizations.plotly_theme import (
     cadlabs_colors,
@@ -198,5 +199,133 @@ def plot_hhi(df, scenario_names):
     update_legend_names(fig)
     #fig.write_html('/Users/wenxuan/Desktop/polygon/cadCAD/Token-Redesign/experiments/notebooks/visualizations/plots/token_price/token_price.html')
 
+
+    return fig
+
+
+def plot_cost_APY_for_agents(df, agent_names):
+    
+    cost_APY_data = pd.DataFrame({
+        "timestep": df["timestep"]
+    })
+
+    for agent in agent_names.keys():
+        cost_APY_data[agent] = df[agent].apply(lambda x: x.cost_APY *100)
+
+    color_cycle = itertools.cycle(cadlabs_colorway_sequence)
+    fig = go.Figure()
+
+    for agent in agent_names.keys():
+        color = next(color_cycle)
+        fig.add_trace(
+            go.Scatter(
+                x=cost_APY_data["timestep"],
+                y=cost_APY_data[agent],
+                name=str(agent), 
+                line=dict(color=color),
+            )
+        )
+
+    fig.update_layout(
+        title={
+            'text': "Cost APY for Each Agent Category",
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="Time",
+        yaxis_title="Cost APY (%)",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.4,
+            xanchor="center",
+            x=0.5,
+            font=dict(
+                size=18,
+                color="black",
+            ),
+        ),
+        hovermode="x unified",
+        template="plotly_white",
+        font=dict(
+            family="Arial",
+            size=18,
+            color="black"
+        ),
+        plot_bgcolor='rgba(255, 255, 255, 1)', 
+        paper_bgcolor='rgba(255, 255, 255, 1)',
+    )
+
+    fig.for_each_xaxis(lambda x: x.update(dict(title=dict(text="Time"))))
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+
+    return fig
+
+def plot_revenue_APY_for_agents(df, agent_names):
+    """
+    Visualize revenue_APY for each agent category over time.
+    
+    Parameters:
+    - df: DataFrame containing simulation data with a 'revenue_APY_at_agent' column, where each entry is a dictionary.
+    - agent_names: Dictionary mapping each agent key in 'revenue_APY_at_agent' to a display name.
+    """
+
+    revenue_data = pd.DataFrame({
+        "timestep": df["timestep"]
+    })
+
+    for agent in agent_names.keys():
+        revenue_data[agent] = df["revenue_APY_at_agent"].apply(lambda x: x.get(agent, None)*100)
+
+    color_cycle = itertools.cycle(cadlabs_colorway_sequence)
+    fig = go.Figure()
+
+    for agent in agent_names.keys():
+        color = next(color_cycle)
+        fig.add_trace(
+            go.Scatter(
+                x=revenue_data["timestep"],
+                y=revenue_data[agent],
+                name=agent,
+                line=dict(color=color),
+            )
+        )
+
+    fig.update_layout(
+        title={
+            'text': "Revenue APY for Each Agent Category",
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="Time",
+        yaxis_title="Revenue APY (%)",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.4,
+            xanchor="center",
+            x=0.5,
+            font=dict(
+                size=18,
+                color="black",
+            ),
+        ),
+        hovermode="x unified",
+        template="plotly_white",
+        font=dict(
+            family="Arial",
+            size=18,
+            color="black"
+        ),
+        plot_bgcolor='rgba(255, 255, 255, 1)', 
+        paper_bgcolor='rgba(255, 255, 255, 1)',
+    )
+
+    fig.for_each_xaxis(lambda x: x.update(dict(title=dict(text="Time"))))
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 
     return fig
