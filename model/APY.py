@@ -17,7 +17,7 @@ def calculate_decentralization_metrics(agents, top_k=3):
     market_shares = agent_counts / total_validators
 
     # Calculate HHI (Herfindahl-Hirschman Index)
-    market_share_percentage = market_shares * 100
+    market_share_percentage = market_shares 
     hhi = (market_share_percentage ** 2).sum()
 
     # Calculate Concentration Ratio (CR_k) for the top_k largest entities
