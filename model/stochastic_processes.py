@@ -40,11 +40,11 @@ def create_stochastic_process(
     
     return samples
 
-def plot_price(samples: list):
+def plot_price(samples: list, market_condition_title = "Bull Market"):
     x = list(range(1, len(samples) + 1))
     plt.scatter(x, samples)
 
-    plt.title('Scatter Plot of Values')
+    plt.title('Simulated ETH Price Trajectory - ' + market_condition_title)
     plt.xlabel('Index')
     plt.ylabel('Value')
 
